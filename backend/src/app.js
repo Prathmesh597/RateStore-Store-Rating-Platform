@@ -3,6 +3,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const adminRoutes = require("./routes/admin.routes");
 const userRoutes = require("./routes/user.routes");
+const storeOwnerRoutes = require("./routes/storeOwner.routes");
+
 
 
 
@@ -24,6 +26,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use("/api/user", userRoutes);
+
+app.use("/api/store-owner", storeOwnerRoutes);
 
 
 
