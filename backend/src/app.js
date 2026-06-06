@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const adminRoutes = require("./routes/admin.routes");
+
 
 //Load .env file
 dotenv.config();
@@ -16,6 +18,9 @@ app.use(cors()); // frontend on - port 3000 & backend on - port 5000, browswer w
 app.use(express.json()); //convert incoming data into json format
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/admin", adminRoutes);
+
 
 app.get("/", (req,res) =>{
     res.json({
