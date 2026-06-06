@@ -20,3 +20,5 @@ router.post("/stores", verifyToken, authorizeRoles("admin"), addStore);
 router.get("/stores", verifyToken, authorizeRoles("admin"), getStores);
 
 module.exports = router;
+
+
