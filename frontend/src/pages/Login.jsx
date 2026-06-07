@@ -1,80 +1,107 @@
-// 1. Import hooks for remembering values (email, password, error, loading state)
 import { useState } from "react";
-// 2. Import function to change the current page (redirect)
 import { useNavigate } from "react-router-dom";
-// 3. Import the 'login' function from AuthContext to save user data
 import { useAuth } from "../context/AuthContext";
-// 4. Import HTTP client to talk to backend server
 import API from "../services/api";
+import logo from "../assets/star_logo.png";
 
 function Login() {
-  // 5. Variables that change when user types in form
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");      // Stores error message to show user
-  const [loading, setLoading] = useState(false); // Disables button while sending request
 
-  // 6. Get login function from context and navigate function from router
+  //1. Initialize states to manage user inputs, error messages, and the loading indicator
+  const [email, setEmail] = useState("");
+  
+  const [password, setPassword] = useState("");
+  
+  const [error, setError] = useState("");
+  
+  const [loading, setLoading] = useState(false);
+
+  //2. Retrieve the login function from context and initialize the navigate hook for routing
   const { login } = useAuth();
+  
   const navigate = useNavigate();
 
-  // 7. This function runs when user submits the form
+  //3. Handle form submission by preventing page reload and resetting initial submission states
   const handleSubmit = async (e) => {
-    e.preventDefault();        // Stop browser from refreshing page
-    setError("");              // Clear old error message
-    setLoading(true);          // Show "Logging in..." on button
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      // 8. Send email + password to server endpoint "/auth/login"
+
+      //4. Send login credentials to the API and update the global authentication state upon success
       const response = await API.post("/auth/login", { email, password });
-      // 9. Save user data and token to localStorage via AuthContext
       login(response.data.user, response.data.token);
 
-      // 10. Redirect based on user role
+      //5. Determine the user's role and route them to their respective designated dashboard
       const role = response.data.user.role;
       if (role === "admin") navigate("/admin/dashboard");
       else if (role === "user") navigate("/user/stores");
       else if (role === "store_owner") navigate("/store-owner/dashboard");
+
     } catch (err) {
-      // 11. If request fails, show error message from server (or default)
+
+      //6. Catch and display any login errors returned by the server or provide a default fallback message
       setError(err.response?.data?.message || "Login failed");
+
     } finally {
-      setLoading(false);       // Re-enable button (hide "Logging in...")
+
+      //7. Ensure the loading state is turned off after the API request finishes, regardless of the outcome
+      setLoading(false);
+
     }
   };
 
-  // 12. Render the login form
+  //8. Render the login form UI, including conditional error alerts, input fields, and the submit button
   return (
-    <div>
-      <h2>Login</h2>
-      {/* 13. Show error message in red if exists */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="auth-page">
+      
+      <div className="form-container">
+        
+        <div className="auth-logo">
+          <img src={logo} alt="Logo" />
+          <span>RateStore</span>
         </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        
+        {error && <div className="alert alert-error">{error}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              className="form-control"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              className="form-control"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          
+          <button type="submit" className="btn btn-primary" style={{ width: "100%" }} disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+          
+        </form>
+        
+        <div className="form-footer">
+          Don't have an account? <a href="/register">Register</a>
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-      <p>Don't have an account? <a href="/register">Register</a></p>
+        
+      </div>
+      
     </div>
   );
 }
 
-export default Login;  // 14. Make Login component available to other files
+export default Login;
