@@ -1,105 +1,145 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import logo from "../assets/star_logo.png";
 
 function Register() {
-  // 4. One state object holding all form fields (name, email, password, address)
+
+  //1. Initialize states for form data, error messages, success messages, and loading status
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     address: "",
   });
-  const [error, setError] = useState("");      // 5. Stores error message
-  const [success, setSuccess] = useState("");  // 6. Stores success message
-  const [loading, setLoading] = useState(false); // 7. Disables button while sending request
 
-  const navigate = useNavigate();               // 8. Get navigate function for redirect
+  const [error, setError] = useState("");
 
-  // 9. Runs whenever user types in any input field (updates formData)
+  const [success, setSuccess] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  //2. Initialize the navigate hook for programmatic routing to other pages
+  const navigate = useNavigate();
+
+  //3. Dynamically update the corresponding state field when the user types in any input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 10. Runs when user submits the form
+  //4. Handle the form submission, prevent the default page reload, and clear previous status messages
   const handleSubmit = async (e) => {
-    e.preventDefault();        // Stop browser refresh
-    setError("");              // Clear old error
-    setSuccess("");            // Clear old success message
-    setLoading(true);          // Show "Registering..." on button
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
 
     try {
-      // 11. Send all form data to backend endpoint "/auth/register"
+
+      //5. Send a POST request to the registration API endpoint with the collected form data
       await API.post("/auth/register", formData);
-      // 12. If success, show green message and redirect to login after 2 seconds
       setSuccess("Registration successful! Redirecting to login...");
+
+      //6. Redirect the user to the login page after a 2-second delay
       setTimeout(() => navigate("/login"), 2000);
+
     } catch (err) {
-      // 13. If fails, show error from server (or default message)
+
+      //7. Catch any API errors and display the error message from the server or a fallback message
       setError(err.response?.data?.message || "Registration failed");
+
     } finally {
-      setLoading(false);       // Re-enable button (hide "Registering...")
+
+      //8. Reset the loading state back to false regardless of API success or failure
+      setLoading(false);
+
     }
   };
 
-  // 14. Render the registration form
+  //9. Render the registration form UI components, conditionally showing error/success alerts
   return (
-    <div>
-      <h2>Register</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            minLength={20}     
-            maxLength={60}    
-            required
-          />
+    <div className="auth-page">
+
+      <div className="form-container">
+
+        <div className="auth-logo">
+          <img src={logo} alt="Logo" />
+          <span>RateStore</span>
         </div>
-        <div>
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+
+        {error && <div className="alert alert-error">{error}</div>}
+
+        {success && <div className="alert alert-success">{success}</div>}
+
+        <form onSubmit={handleSubmit}>
+
+          <div className="form-group">
+            <label>Name</label>
+            <input
+              type="text"
+              name="name"
+              className="form-control"
+              value={formData.name}
+              onChange={handleChange}
+              minLength={20}
+              maxLength={60}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              className="form-control"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              className="form-control"
+              value={formData.password}
+              onChange={handleChange}
+              minLength={8}
+              maxLength={16}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Address</label>
+            <textarea
+              name="address"
+              className="form-control"
+              value={formData.address}
+              onChange={handleChange}
+              maxLength={400}
+              rows={3}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ width: "100%" }} disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
+
+        </form>
+
+        <div className="form-footer">
+          Already have an account? <a href="/login">Login</a>
         </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            minLength={8}      // Password at least 8 chars, max 16
-            maxLength={16}
-            required
-          />
-        </div>
-        <div>
-          <label>Address</label>
-          <textarea
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            maxLength={400}    // Address max 400 characters
-            required
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
-      <p>Already have an account? <a href="/login">Login</a></p>
+
+      </div>
+
     </div>
   );
 }
 
-export default Register;  // 15. Make Register component available to other files
+export default Register;
