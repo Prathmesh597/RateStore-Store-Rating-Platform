@@ -1,6 +1,6 @@
 #  RateStore-Store-Rating-Platform
 
-A full-stack web application that allows users to submit ratings for stores registered on the platform. Built as part of the Roxiler Systems internship coding challenge.
+A full-stack web application that allows users to submit ratings for stores registered on the platform.
 
 ---
 
